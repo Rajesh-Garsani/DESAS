@@ -1,15 +1,24 @@
 from django.db import models
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
-
 
 class MessageLog(models.Model):
-    recipient = models.ForeignKey(User, on_delete=models.CASCADE)
+    #sender = models.CharField(max_length=255, blank=True, null=True)
+    recipient = models.CharField(max_length=255)
     content = models.TextField()
     sent_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=10, choices=(('sent', 'Sent'), ('failed', 'Failed')))
-    method = models.CharField(max_length=10, choices=(('email', 'Email'), ('sms', 'SMS')))
+    status = models.CharField(
+        max_length=10,
+        choices=(('sent', 'Sent'), ('failed', 'Failed'), ('received', 'Received'))
+    )
+    method = models.CharField(
+        max_length=10,
+        choices=(('email', 'Email'), ('sms', 'SMS'))
+    )
+
+    #direction = models.CharField(
+    #    max_length=10,
+    #    choices=(('incoming', 'Incoming'), ('outgoing', 'Outgoing'))
+
+    #)
 
     def __str__(self):
-        return f"Message to {self.recipient.username} at {self.sent_at}"
+        return f"Message to {self.recipient} at {self.sent_at}"

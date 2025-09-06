@@ -1,6 +1,12 @@
+from core.models import MessageLog
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect
+
+
+from django.core.mail import send_mail
+from django.conf import settings
+from django.shortcuts import render, redirect
 from django.contrib import messages
 
 # Add the decorator functions here since we're having issues with core/decorators.py
@@ -49,3 +55,37 @@ def contact(request):
 
 def unauthorized(request):
     return render(request, 'core/unauthorized.html')
+
+
+
+
+
+def contact(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        email = request.POST.get("email")
+        message = request.POST.get("message")
+
+        # Send email to admin
+        subject = f"New Contact Form Submission from {name}"
+        body = f"Sender: {name}\nEmail: {email}\n\nMessage:\n{message}"
+
+        send_mail(
+            subject,
+            body,
+            settings.DEFAULT_FROM_EMAIL,   # from
+            [settings.EMAIL_HOST_USER],    # to admin email
+            fail_silently=False,
+        )
+
+        MessageLog.objects.create(
+            recipient=settings.EMAIL_HOST_USER,  # now allowed
+            content=body,
+            status="received",
+            method="email"
+        )
+
+        messages.success(request, "Your message has been sent. Our team will contact you soon.")
+        return redirect("contact")
+
+    return render(request, "core/contact.html")
