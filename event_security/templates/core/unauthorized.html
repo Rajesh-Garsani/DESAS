@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h2><i class="bi bi-exclamation-octagon"></i> Access Denied</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead">You don't have permission to access this page.</p>
+                    <p>Please contact the administrator if you believe this is an error.</p>
+                    <div class="mt-4">
+                        <a href="{% url 'home' %}" class="btn btn-primary">
+                            <i class="bi bi-house"></i> Return to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

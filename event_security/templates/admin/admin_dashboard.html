@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Admin Dashboard</h2>
+
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card bg-primary text-white text-center p-4">
+                <h3>{{ total_events }}</h3>
+                <p>Total Events</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card bg-success text-white text-center p-4">
+                <h3>{{ approved_guards }}</h3>
+                <p>Approved Guards</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card bg-warning text-dark text-center p-4">
+                <h3>{{ pending_events }}</h3>
+                <p>Pending Events</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card bg-danger text-white text-center p-4">
+                <h3>{{ pending_guards }}</h3>
+                <p>Pending Guards</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2 d-md-flex mt-4">
+        <a href="{% url 'manage_events' %}" class="btn btn-primary me-md-2">
+            <i class="bi bi-calendar-event"></i> Manage Events
+        </a>
+        <a href="{% url 'manage_guards' %}" class="btn btn-success me-md-2">
+            <i class="bi bi-shield-check"></i> Manage Guards
+        </a>
+        <a href="{% url 'assign_duty' %}" class="btn btn-info me-md-2">
+            <i class="bi bi-person-check"></i> Assign Duty
+        </a>
+        <a href="{% url 'messages_log' %}" class="btn btn-secondary">
+            <i class="bi bi-chat-left-text"></i> View Messages
+        </a>
+    </div>
+</div>
+{% endblock %}

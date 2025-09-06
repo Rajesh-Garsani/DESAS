@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Manage Security Guards</h2>
+
+    {% if guard_profiles %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Guard Type</th>
+                    <th>Experience</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for guard_profile in guard_profiles %}
+                <tr>
+                    <td>{{ guard_profile.user.username }}</td>
+                    <td>{{ guard_profile.user.email }}</td>
+                    <td>{{ guard_profile.profile.get_guard_type_display }}</td>
+                    <td>{{ guard_profile.profile.experience }} years</td>
+                    <td>
+                        <span class="badge {% if guard_profile.profile.is_approved %}bg-success{% else %}bg-warning{% endif %}">
+                            {% if guard_profile.profile.is_approved %}Approved{% else %}Pending{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        {% if not guard_profile.profile.is_approved %}
+                        <a href="{% url 'approve_guard' guard_profile.user.id %}" class="btn btn-sm btn-success">
+                            <i class="bi bi-check-circle"></i> Approve
+                        </a>
+                        <a href="{% url 'reject_guard' guard_profile.user.id %}" class="btn btn-sm btn-danger">
+                            <i class="bi bi-x-circle"></i> Reject
+                        </a>
+                        {% else %}
+                        <span class="text-muted">Already approved</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        No security guards found.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

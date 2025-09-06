@@ -1,0 +1,14 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('dashboard/', views.guard_dashboard, name='guard_dashboard'),
+    path('edit-profile/', views.edit_profile, name='edit_profile'),
+    path('assignments/', views.assignments, name='assignments'),
+    path('manage/', views.manage_guards, name='manage_guards'),
+    path('<int:guard_id>/approve/', views.approve_guard, name='approve_guard'),
+    path('<int:guard_id>/reject/', views.reject_guard, name='reject_guard'),
+    path('assign-duty/', views.assign_duty, name='assign_duty'),
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('messages-log/', views.messages_log, name='messages_log'),
+]

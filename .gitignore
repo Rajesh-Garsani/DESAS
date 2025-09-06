@@ -1,0 +1,19 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Database
+db.sqlite3
+
+# Environment variables
+.env
+
+# IDE settings (optional)
+.vscode/
+.idea/
+*.swp

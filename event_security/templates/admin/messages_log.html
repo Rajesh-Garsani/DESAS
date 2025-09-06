@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Messages Log</h2>
+
+    {% if logs %}
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4>All Sent Messages</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Recipient</th>
+                            <th>Content</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Sent At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.recipient.username }}</td>
+                            <td>{{ log.content|truncatewords:10 }}</td>
+                            <td>
+                                <span class="badge bg-info">{{ log.method }}</span>
+                            </td>
+                            <td>
+                                <span class="badge {% if log.status == 'sent' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ log.status }}
+                                </span>
+                            </td>
+                            <td>{{ log.sent_at }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        No messages have been sent yet.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
