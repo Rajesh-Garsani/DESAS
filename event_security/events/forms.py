@@ -1,6 +1,9 @@
 from django import forms
 from .models import Event
+from .models import EventReview
 from django.utils import timezone
+
+
 
 
 class EventForm(forms.ModelForm):
@@ -23,3 +26,12 @@ class EventForm(forms.ModelForm):
         if commit:
             event.save()
         return event
+
+class EventReviewForm(forms.ModelForm):
+    class Meta:
+        model = EventReview
+        fields = ["message", "rating"]
+        widgets = {
+            "message": forms.Textarea(attrs={"rows": 3, "class": "form-control"}),
+            "rating": forms.Select(attrs={"class": "form-select"}),
+        }

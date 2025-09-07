@@ -8,6 +8,7 @@
         </div>
         <div class="card-body">
             <div class="row mb-4">
+                <!-- Event Details -->
                 <div class="col-md-6">
                     <h4>Event Details</h4>
                     <ul class="list-group">
@@ -36,6 +37,8 @@
                         </li>
                     </ul>
                 </div>
+
+                <!-- Security Requirements -->
                 <div class="col-md-6">
                     <h4>Security Requirements</h4>
                     <ul class="list-group">
@@ -55,6 +58,7 @@
                 </div>
             </div>
 
+            <!-- Assigned Guards -->
             {% if event.assignments.exists %}
             <div class="mb-4">
                 <h4>Assigned Security Personnel</h4>
@@ -81,16 +85,40 @@
             </div>
             {% endif %}
 
+            <!-- Reviews Section -->
+            <div class="mb-4">
+                <h4>Reviews</h4>
+                {% for review in event.reviews.all %}
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <strong>{{ review.registrar.username }}</strong>
+                            <span class="badge bg-warning text-dark">⭐ {{ review.rating }}/5</span>
+                            <p class="mt-2">{{ review.message }}</p>
+                            <small class="text-muted">{{ review.created_at }}</small>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No reviews yet.</p>
+                {% endfor %}
+
+                {% if event.datetime < now %}
+                    <a href="{% url 'add_review' event.id %}" class="btn btn-sm btn-primary mt-3">
+                        Leave a Review
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
             <div class="d-flex justify-content-between">
                 <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left"></i> Back to Dashboard
                 </a>
                 {% if event.status == 'pending' %}
-                <a href="#" class="btn btn-warning disabled">Waiting for Approval</a>
+                    <span class="btn btn-warning disabled">Waiting for Approval</span>
                 {% elif event.status == 'approved' %}
-                <a href="#" class="btn btn-info disabled">Waiting for Assignment</a>
+                    <span class="btn btn-info disabled">Waiting for Assignment</span>
                 {% elif event.status == 'assigned' %}
-                <a href="#" class="btn btn-success disabled">Security Assigned</a>
+                    <span class="btn btn-success disabled">Security Assigned</span>
                 {% endif %}
             </div>
         </div>

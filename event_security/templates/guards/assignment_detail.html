@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Assignment Details</h2>
+  <table class="table table-bordered">
+    <tr><th>Event</th><td>{{ assignment.event.name }}</td></tr>
+    <tr><th>Date & Time</th><td>{{ assignment.event.datetime }}</td></tr>
+    <tr><th>Location</th><td>{{ assignment.event.location }}</td></tr>
+    <tr><th>Status</th><td>{{ assignment.event.status }}</td></tr>
+  </table>
+  <a href="{% url 'assignments' %}" class="btn btn-secondary">Back</a>
+</div>
+{% endblock %}

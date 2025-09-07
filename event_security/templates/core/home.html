@@ -124,4 +124,37 @@
         </div>
     </div>
 </div>
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center mb-4">Client Review</h2>
+    <div class="row">
+      {% for review in latest_reviews %}
+        <div class="col-md-4 mb-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">⭐ {{ review.rating }}/5</h5>
+              <p class="card-text">"{{ review.message|truncatewords:20 }}"</p>
+            </div>
+            <div class="card-footer bg-white border-0">
+              <small class="text-muted">
+                – {{ review.registrar.username }},
+                {{ review.event.name }}
+              </small>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-center">No reviews yet.</p>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-3">
+      <a href="{% url 'review_list' %}" class="btn btn-outline-primary">
+        See All Reviews
+      </a>
+    </div>
+  </div>
+</section>
+
 {% endblock %}

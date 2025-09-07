@@ -8,6 +8,13 @@ from django.core.mail import send_mail
 from django.conf import settings
 from twilio.rest import Client
 import datetime
+from django.utils import timezone
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
+from .models import Event, EventReview
+from .forms import EventReviewForm
+from django.contrib.auth.decorators import login_required
+from .models import EventReview
 
 
 @event_registrar_required
@@ -37,6 +44,7 @@ def event_detail(request, event_id):
     event = get_object_or_404(Event, id=event_id, registrar=request.user)
     context = {
         'event': event,
+        "now": timezone.now(),
     }
     return render(request, 'events/event_detail.html', context)
 
@@ -133,3 +141,31 @@ def reject_event(request, event_id):
 
     messages.success(request, 'Event rejected! Notification sent.')
     return redirect('manage_events')
+
+
+def add_review(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+
+    # Check if event is completed
+    if event.datetime > timezone.now():
+        messages.error(request, "You can only review after the event is completed.")
+        return redirect("dashboard")
+
+    if request.method == "POST":
+        form = EventReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.event = event
+            review.registrar = request.user
+            review.save()
+            messages.success(request, "Your review has been submitted.")
+            return redirect("event_detail", event_id=event.id)
+    else:
+        form = EventReviewForm()
+
+    return render(request, "events/add_review.html", {"form": form, "event": event})
+
+@login_required
+def review_list(request):
+    reviews = EventReview.objects.select_related("event", "registrar").order_by("-created_at")
+    return render(request, "events/review_list.html", {"reviews": reviews})

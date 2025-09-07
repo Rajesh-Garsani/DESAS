@@ -4,28 +4,21 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.apps import apps
-
-# Import your forms
+from django.shortcuts import redirect
 from .forms import EventRegistrarRegistrationForm, SecurityGuardRegistrationForm, LoginForm
-
-# Get the CustomUser model
 CustomUser = get_user_model()
 
 
 def register_event_registrar(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = EventRegistrarRegistrationForm(request.POST)
         if form.is_valid():
-            try:
-                user = form.save()
-                login(request, user)
-                messages.success(request, 'Registration successful! You can now add events.')
-                return redirect('add_event')
-            except Exception as e:
-                messages.error(request, f'Error during registration: {str(e)}')
+            user = form.save()
+            messages.success(request, "Account created successfully. Please log in to continue.")
+            return redirect("login")   # 👈 send to login page instead of auto login
     else:
         form = EventRegistrarRegistrationForm()
-    return render(request, 'accounts/register_event_registrar.html', {'form': form})
+    return render(request, "accounts/register_event_registrar.html", {"form": form})
 
 
 def register_security_guard(request):

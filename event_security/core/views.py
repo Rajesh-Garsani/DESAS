@@ -2,14 +2,21 @@ from core.models import MessageLog
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect
-
-
 from django.core.mail import send_mail
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
-# Add the decorator functions here since we're having issues with core/decorators.py
+# core/views.py
+from django.shortcuts import render
+from django.apps import apps
+
+
+def home(request):
+    EventReview = apps.get_model('events', 'EventReview')  # app_label, model_name
+    latest_reviews = EventReview.objects.select_related("event", "registrar").order_by("-created_at")[:6]  # show latest 6
+    return render(request, "core/home.html", {"latest_reviews": latest_reviews})
+
 def admin_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated:
