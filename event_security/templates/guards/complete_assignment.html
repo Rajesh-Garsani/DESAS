@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow">
+        <div class="card-header bg-success text-white">
+            <h4>Mark Assignment Complete: {{ assignment.event.name }}</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="notes" class="form-label"><strong>Completion Notes</strong></label>
+                    <textarea name="notes" id="notes" class="form-control" rows="4" placeholder="Add any details about your duty completion..." required></textarea>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'guard_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Mark Complete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -13,7 +13,6 @@
     {% endif %}
 
     <div class="row">
-        <!-- Guard Profile -->
         <div class="col-md-4 mb-4">
             <div class="card">
                 <div class="card-header bg-primary text-white">
@@ -24,13 +23,13 @@
                     <p><strong>Email:</strong> {{ request.user.email }}</p>
                     <p><strong>Phone:</strong> {{ request.user.phone }}</p>
                     {% if request.user.guard_profile %}
-                        <p><strong>Guard Type:</strong> {{ request.user.guard_profile.get_guard_type_display }}</p>
-                        <p><strong>Experience:</strong> {{ request.user.guard_profile.experience }} years</p>
-                        <p><strong>Status:</strong>
-                            <span class="badge {% if request.user.guard_profile.is_approved %}bg-success{% else %}bg-warning{% endif %}">
-                                {% if request.user.guard_profile.is_approved %}Approved{% else %}Pending Approval{% endif %}
-                            </span>
-                        </p>
+                    <p><strong>Guard Type:</strong> {{ request.user.guard_profile.get_guard_type_display }}</p>
+                    <p><strong>Experience:</strong> {{ request.user.guard_profile.experience }} years</p>
+                    <p><strong>Status:</strong>
+                        <span class="badge {% if request.user.guard_profile.is_approved %}bg-success{% else %}bg-warning{% endif %}">
+                            {% if request.user.guard_profile.is_approved %}Approved{% else %}Pending Approval{% endif %}
+                        </span>
+                    </p>
                     {% endif %}
                     <div class="d-grid mt-3">
                         <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary">
@@ -41,7 +40,6 @@
             </div>
         </div>
 
-        <!-- Guard Assignments -->
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header bg-success text-white">
@@ -57,30 +55,31 @@
                                     <th>Date & Time</th>
                                     <th>Location</th>
                                     <th>Status</th>
-                                    <th>Assignment Date</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for assignment in assignments %}
-                                    {% if request.user in assignment.guards.all %}
-                                    <tr>
-                                        <td>
-                                            <a href="{% url 'assignment_detail' assignment.id %}">
-                                                {{ assignment.event.name }}
-                                            </a>
-                                        </td>
-                                        <td>{{ assignment.event.datetime }}</td>
-                                        <td>{{ assignment.event.location }}</td>
-                                        <td>
-                                            <span class="badge
-                                                {% if assignment.event.status == 'assigned' %}bg-success
-                                                {% else %}bg-secondary{% endif %}">
-                                                {{ assignment.event.get_status_display }}
-                                            </span>
-                                        </td>
-                                        <td>{{ assignment.assigned_at }}</td>
-                                    </tr>
-                                    {% endif %}
+                                <tr>
+                                    <td>{{ assignment.event.name }}</td>
+                                    <td>{{ assignment.event.datetime }}</td>
+                                    <td>{{ assignment.event.location }}</td>
+                                    <td>
+                                        <span class="badge
+                                            {% if assignment.event.status == 'assigned' %}bg-success
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ assignment.event.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'reject_assignment' assignment.id %}" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-x-circle"></i> Reject
+                                        </a>
+                                        <a href="{% url 'complete_assignment' assignment.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-check-circle"></i> Complete
+                                        </a>
+                                    </td>
+                                </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -88,9 +87,9 @@
                     {% else %}
                     <div class="alert alert-info">
                         {% if is_approved %}
-                            You don't have any assignments yet.
+                        You don't have any assignments yet.
                         {% else %}
-                            Assignments will appear here after admin approval.
+                        Assignments will appear here after admin approval.
                         {% endif %}
                     </div>
                     {% endif %}

@@ -7,6 +7,8 @@ from django.core.mail import send_mail
 from .models import SecurityGuardProfile, DutyAssignment
 from .forms import GuardProfileForm
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+
 
 
 
@@ -292,3 +294,69 @@ def messages_log(request):
         'logs': logs,
     }
     return render(request, 'admin/messages_log.html', context)
+
+
+
+@security_guard_required
+def reject_assignment(request, assignment_id):
+    assignment = get_object_or_404(DutyAssignment, id=assignment_id, guards=request.user)
+
+    if request.method == "POST":
+        reason = request.POST.get("reason", "No reason provided")
+        assignment.details = f"Rejected: {reason}"
+        assignment.save()
+
+        # ✅ Create log entry
+        MessageLog = get_message_log_model()
+        MessageLog.objects.create(
+            recipient="Admin",
+            content=f"Guard {request.user.username} rejected assignment for event {assignment.event.name}. Reason: {reason}",
+            status="info",
+            method="system",
+            direction="incoming"
+        )
+
+        # ✅ Send email to admin
+        send_mail(
+            subject=f"Assignment Rejected - {assignment.event.name}",
+            message=f"Guard {request.user.username} rejected assignment for event '{assignment.event.name}'.\nReason: {reason}",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[settings.DEFAULT_FROM_EMAIL],  # admin email
+            fail_silently=False,
+        )
+
+        messages.success(request, "You have rejected this assignment.")
+        return redirect("guard_dashboard")
+
+    return render(request, "guards/reject_assignment.html", {"assignment": assignment})
+
+
+@security_guard_required
+def complete_assignment(request, assignment_id):
+    assignment = get_object_or_404(DutyAssignment, id=assignment_id, guards=request.user)
+
+    assignment.details = "Completed successfully"
+    assignment.assigned_at = timezone.now()
+    assignment.save()
+
+    # ✅ Create log entry
+    MessageLog = get_message_log_model()
+    MessageLog.objects.create(
+        recipient="Admin",
+        content=f"Guard {request.user.username} marked assignment for event {assignment.event.name} as completed.",
+        status="info",
+        method="system",
+        direction="incoming"
+    )
+
+    # ✅ Send email to admin
+    send_mail(
+        subject=f"Assignment Completed - {assignment.event.name}",
+        message=f"Guard {request.user.username} has marked assignment for event '{assignment.event.name}' as completed.",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[settings.DEFAULT_FROM_EMAIL],  # admin email
+        fail_silently=False,
+    )
+
+    messages.success(request, "You have marked this assignment as completed.")
+    return redirect("guard_dashboard")
