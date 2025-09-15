@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load custom_filters %}  {# 🔑 Load our safe dictionary filter #}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Your Events</h2>
+        <a href="{% url 'add_event' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add New Event
+        </a>
+    </div>
+
+    {% if events %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Event Name</th>
+                    <th>Type</th>
+                    <th>Date & Time</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Assigned Guards</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                <tr>
+                    <td>{{ event.name }}</td>
+                    <td>{{ event.get_event_type_display }}</td>
+                    <td>{{ event.datetime }}</td>
+                    <td>{{ event.location }}</td>
+                    <td>
+                        <span class="badge
+                            {% if event.status == 'pending' %}bg-warning
+                            {% elif event.status == 'approved' %}bg-success
+                            {% elif event.status == 'rejected' %}bg-danger
+                            {% elif event.status == 'assigned' %}bg-info
+                            {% else %}bg-secondary{% endif %}">
+                            {{ event.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% with event_assignments|get_item:event.id as guards %}
+                            {% if guards %}
+                                {% for guard in guards %}
+                                    <span class="badge bg-secondary">
+                                        {{ guard.username }} ({{ guard.guard_profile.guard_type }})
+                                    </span><br>
+                                {% endfor %}
+                            {% else %}
+                                <em>No guards assigned yet</em>
+                            {% endif %}
+                        {% endwith %}
+                    </td>
+                    <td>
+                        <a href="{% url 'event_detail' event.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i> View
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        You haven't created any events yet. <a href="{% url 'add_event' %}">Create your first event</a>.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

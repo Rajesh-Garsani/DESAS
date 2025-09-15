@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="hero-section bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="display-4 fw-bold">Professional Security for Your Events</h1>
+                <p class="lead">Ensure the safety and success of your events with our expert security solutions.</p>
+                <div class="d-grid gap-2 d-md-flex mt-4">
+                    {% if user.is_authenticated %}
+                        {% if user.is_event_registrar %}
+                            <a href="{% url 'add_event' %}" class="btn btn-light btn-lg">Add New Event</a>
+                        {% elif user.is_security_guard %}
+                            <a href="{% url 'assignments' %}" class="btn btn-light btn-lg">View Assignments</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'register_event_registrar' %}" class="btn btn-light btn-lg me-2">Register Event</a>
+                        <a href="{% url 'register_security_guard' %}" class="btn btn-outline-light btn-lg">Register as Guard</a>
+                        <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg ms-2">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+           <div class="col-md-6 text-center">
+                <img src="static/images/main.jfif"
+                     alt="Security Team"
+                     class="img-fluid rounded-4 shadow-lg"
+                     style="max-width: 400px; object-fit: cover;">
+                </div>
+        </div>
+    </div>
+</div>
+
+<div class="features-section py-5">
+    <div class="container">
+        <div class="row text-center mb-4">
+            <h2>Our Services</h2>
+            <p class="lead">Comprehensive security solutions for all types of events</p>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="bi bi-shield-check display-4 text-primary"></i>
+                        </div>
+                        <h3 class="card-title text-center">Event Security</h3>
+                        <p class="card-text">Professional security personnel for concerts, conferences, weddings, and more.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="bi bi-people display-4 text-primary"></i>
+                        </div>
+                        <h3 class="card-title text-center">Crowd Management</h3>
+                        <p class="card-text">Expert crowd control to ensure safety and smooth flow at your events.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="bi bi-clipboard-check display-4 text-primary"></i>
+                        </div>
+                        <h3 class="card-title text-center">Risk Assessment</h3>
+                        <p class="card-text">Comprehensive risk evaluation and mitigation strategies for your events.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="testimonials-section bg-light py-5">
+    <div class="container">
+        <div class="row text-center mb-4">
+            <h2>What Our Clients Say</h2>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="card-text">"EventSecure provided exceptional security for our corporate conference. Their team was professional and efficient."</p>
+                        <div class="d-flex align-items-center mt-3">
+                            <img src="static\images\Sarah.jfif" alt="Client" class="rounded-circle me-3" width="50">
+                            <div>
+                                <h6 class="mb-0">Sarah Johnson</h6>
+                                <small class="text-muted">Event Manager, TechCorp</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="card-text">"We hired EventSecure for our wedding and were impressed by their discreet yet effective security presence."</p>
+                        <div class="d-flex align-items-center mt-3">
+                            <img src="static\images\Emily.jfif" alt="Client" class="rounded-circle me-3" width="50">
+                            <div>
+                                <h6 class="mb-0">Michael & Emily Chen</h6>
+                                <small class="text-muted">Wedding Clients</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="card-text">"The security team handled crowd control perfectly at our music festival. Will definitely use them again!"</p>
+                        <div class="d-flex align-items-center mt-3">
+                            <img src="static\images\David.jfif" alt="Client" class="rounded-circle me-3" width="50">
+                            <div>
+                                <h6 class="mb-0">David Rodriguez</h6>
+                                <small class="text-muted">Festival Organizer</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center mb-4">Client Review</h2>
+    <div class="row">
+      {% for review in latest_reviews %}
+        <div class="col-md-4 mb-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">⭐ {{ review.rating }}/5</h5>
+              <p class="card-text">"{{ review.message|truncatewords:20 }}"</p>
+            </div>
+            <div class="card-footer bg-white border-0">
+              <small class="text-muted">
+                – {{ review.registrar.username }},
+                {{ review.event.name }}
+              </small>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-center">No reviews yet.</p>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-3">
+      <a href="{% url 'review_list' %}" class="btn btn-outline-primary">
+        See All Reviews
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

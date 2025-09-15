@@ -1,0 +1,294 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.apps import apps
+from django.conf import settings
+from django.core.mail import send_mail
+from .models import SecurityGuardProfile, DutyAssignment
+from .forms import GuardProfileForm
+from django.contrib.auth.decorators import login_required
+
+
+
+def admin_required(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, 'You need to be logged in to access this page.')
+            return redirect('login')
+        if not hasattr(request.user, 'is_admin') or not request.user.is_admin():
+            messages.error(request, 'You do not have permission to access this page.')
+            return redirect('unauthorized')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+def security_guard_required(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, 'You need to be logged in to access this page.')
+            return redirect('login')
+        if not hasattr(request.user, 'is_security_guard') or not (request.user.is_security_guard() or request.user.is_admin()):
+            messages.error(request, 'You do not have permission to access this page.')
+            return redirect('unauthorized')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+
+# Import other models using Django's app registry to avoid circular imports
+def get_event_model():
+    return apps.get_model('events', 'Event')
+
+
+def get_message_log_model():
+    return apps.get_model('core', 'MessageLog')
+
+
+# Import Twilio only if needed to avoid errors if not installed
+try:
+    from twilio.rest import Client
+
+    TWILIO_AVAILABLE = True
+except ImportError:
+    TWILIO_AVAILABLE = False
+
+
+@security_guard_required
+def guard_dashboard(request):
+    # DutyAssignment uses a ManyToManyField 'guards'
+    assignments = DutyAssignment.objects.filter(guards=request.user).select_related('event')
+
+    is_approved = False
+    try:
+        is_approved = request.user.guard_profile.is_approved
+    except SecurityGuardProfile.DoesNotExist:
+        pass
+
+    context = {
+        'assignments': assignments,
+        'is_approved': is_approved
+    }
+    return render(request, 'guards/dashboard.html', context)
+
+
+@security_guard_required
+def edit_profile(request):
+    try:
+        guard_profile = SecurityGuardProfile.objects.get(user=request.user)
+    except SecurityGuardProfile.DoesNotExist:
+        guard_profile = SecurityGuardProfile(user=request.user)
+        guard_profile.save()
+
+    if request.method == 'POST':
+        form = GuardProfileForm(request.POST, instance=guard_profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('guard_dashboard')
+    else:
+        form = GuardProfileForm(instance=guard_profile)
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'guards/edit_profile.html', context)
+
+
+@security_guard_required
+def assignments(request):
+    assignments = DutyAssignment.objects.filter(guards=request.user).select_related('event')
+    return render(request, 'guards/assignments.html', {'assignments': assignments})
+
+
+@login_required
+def assignment_detail(request, assignment_id):
+    assignment = get_object_or_404(DutyAssignment, id=assignment_id, guards=request.user)
+    return render(request, 'guards/assignment_detail.html', {'assignment': assignment})
+
+@admin_required
+def manage_guards(request):
+    User = get_user_model()
+    guards = User.objects.filter(role='security_guard')
+
+    # Add profile information to each guard
+    guard_profiles = []
+    for guard in guards:
+        try:
+            profile = SecurityGuardProfile.objects.get(user=guard)
+            guard_profiles.append({
+                'user': guard,
+                'profile': profile
+            })
+        except SecurityGuardProfile.DoesNotExist:
+            guard_profiles.append({
+                'user': guard,
+                'profile': None
+            })
+
+    context = {
+        'guard_profiles': guard_profiles,
+    }
+    return render(request, 'guards/manage_guards.html', context)
+
+
+@admin_required
+def approve_guard(request, guard_id):
+    User = get_user_model()
+    guard = get_object_or_404(User, id=guard_id, role='security_guard')
+
+    try:
+        profile = SecurityGuardProfile.objects.get(user=guard)
+    except SecurityGuardProfile.DoesNotExist:
+        profile = SecurityGuardProfile(user=guard)
+
+    profile.is_approved = True
+    profile.save()
+
+    messages.success(request, f'{guard.username} has been approved as a security guard.')
+    return redirect('manage_guards')
+
+
+@admin_required
+def reject_guard(request, guard_id):
+    User = get_user_model()
+    guard = get_object_or_404(User, id=guard_id, role='security_guard')
+    guard.delete()
+
+    messages.success(request, f'User {guard.username} has been rejected and removed from the system.')
+    return redirect('manage_guards')
+
+
+@admin_required
+def assign_duty(request):
+    Event = get_event_model()
+    User = get_user_model()
+    MessageLog = get_message_log_model()
+
+    if request.method == 'POST':
+        event_id = request.POST.get('event')
+        guard_ids = request.POST.getlist('guards')
+
+        event = get_object_or_404(Event, id=event_id)
+        guards = User.objects.filter(id__in=guard_ids, role='security_guard')
+
+        for guard in guards:
+            assignment, created = DutyAssignment.objects.get_or_create(event=event, guard=guard)
+
+            # Send notification to guard
+            subject = f"New Duty Assignment: {event.name}"
+            message = f"You have been assigned to duty at {event.name} on {event.datetime} at {event.location}."
+
+            # ✅ Email notification
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [guard.email],
+                    fail_silently=False,
+                )
+                email_status = "sent"
+            except Exception:
+                email_status = "failed"
+
+            # ✅ Log email
+            MessageLog.objects.create(
+                sender=settings.DEFAULT_FROM_EMAIL,
+                recipient=guard.email,
+                content=message,
+                status=email_status,
+                method="email",
+                direction="outgoing"
+            )
+
+            # ✅ SMS notification if phone exists and Twilio is available
+            if guard.phone and TWILIO_AVAILABLE:
+                try:
+                    client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+                    client.messages.create(
+                        body=message,
+                        from_=settings.TWILIO_PHONE_NUMBER,
+                        to=guard.phone
+                    )
+                    sms_status = "sent"
+                except Exception:
+                    sms_status = "failed"
+
+                # ✅ Log SMS
+                MessageLog.objects.create(
+                    sender=settings.TWILIO_PHONE_NUMBER,
+                    recipient=guard.phone,
+                    content=message,
+                    status=sms_status,
+                    method="sms",
+                    direction="outgoing"
+                )
+
+        event.status = 'assigned'
+        event.save()
+
+        messages.success(request, f'Duties assigned successfully! Notifications sent to {guards.count()} guards.')
+        return redirect('assign_duty')
+
+    # GET request
+    events = Event.objects.filter(status='approved')
+    guards = User.objects.filter(role='security_guard')
+
+    # Add profile information to each guard
+    guard_profiles = []
+    for guard in guards:
+        try:
+            profile = SecurityGuardProfile.objects.get(user=guard)
+            if profile.is_approved:
+                guard_profiles.append({
+                    'user': guard,
+                    'profile': profile
+                })
+        except SecurityGuardProfile.DoesNotExist:
+            pass
+
+    context = {
+        'events': events,
+        'guards': guard_profiles,
+    }
+    return render(request, 'guards/assign_duty.html', context)
+
+
+
+@admin_required
+def admin_dashboard(request):
+    Event = get_event_model()
+    User = get_user_model()
+
+    total_events = Event.objects.count()
+    total_guards = User.objects.filter(role='security_guard').count()
+    pending_events = Event.objects.filter(status='pending').count()
+
+    # Count approved guards
+    approved_guards = 0
+    guards = User.objects.filter(role='security_guard')
+    for guard in guards:
+        try:
+            if SecurityGuardProfile.objects.get(user=guard).is_approved:
+                approved_guards += 1
+        except SecurityGuardProfile.DoesNotExist:
+            pass
+
+    pending_guards = total_guards - approved_guards
+
+    context = {
+        'total_events': total_events,
+        'total_guards': total_guards,
+        'approved_guards': approved_guards,
+        'pending_events': pending_events,
+        'pending_guards': pending_guards,
+    }
+    return render(request, 'admin/admin_dashboard.html', context)
+
+
+@admin_required
+def messages_log(request):
+    MessageLog = get_message_log_model()
+    logs = MessageLog.objects.all().order_by('-sent_at')
+    context = {
+        'logs': logs,
+    }
+    return render(request, 'admin/messages_log.html', context)

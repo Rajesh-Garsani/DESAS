@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Manage Events</h2>
+
+    {% if events %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Event Name</th>
+                    <th>Registrar</th>
+                    <th>Date & Time</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                <tr>
+                    <td>{{ event.name }}</td>
+                    <td>{{ event.registrar.username }}</td>
+                    <td>{{ event.datetime }}</td>
+                    <td>{{ event.location }}</td>
+                    <td>
+                        <span class="badge
+                            {% if event.status == 'pending' %}bg-warning
+                            {% elif event.status == 'approved' %}bg-success
+                            {% elif event.status == 'rejected' %}bg-danger
+                            {% elif event.status == 'assigned' %}bg-info
+                            {% else %}bg-secondary{% endif %}">
+                            {{ event.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{% url 'event_detail' event.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            {% if event.status == 'pending' %}
+                            <a href="{% url 'approve_event' event.id %}" class="btn btn-sm btn-success">
+                                <i class="bi bi-check-circle"></i> Approve
+                            </a>
+                            <a href="{% url 'reject_event' event.id %}" class="btn btn-sm btn-danger">
+                                <i class="bi bi-x-circle"></i> Reject
+                            </a>
+                            {% elif event.status == 'approved' %}
+                            <a href="{% url 'assign_duty' %}" class="btn btn-sm btn-info">
+                                <i class="bi bi-person-check"></i> Assign
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        No events found.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

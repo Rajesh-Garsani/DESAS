@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="text-center mb-4">About EventSecure</h1>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title">Our Mission</h3>
+                    <p class="card-text">
+                        At EventSecure, our mission is to provide top-tier security solutions for events of all sizes.
+                        We understand that the safety of your guests and the success of your event are paramount.
+                        With our professional security personnel and advanced planning tools, we ensure that your event runs smoothly and securely.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title">Our Team</h3>
+                    <p class="card-text">
+                        Our team consists of highly trained security professionals with backgrounds in law enforcement,
+                        military, and private security. Each member of our team undergoes rigorous training and
+                        continuous evaluation to maintain the highest standards of service.
+                    </p>
+                    <div class="row mt-4">
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                               <img src="{% static 'images/Johan_o_smith.jpg' %}"
+                                       alt="Team Member"
+                                    class="img-fluid rounded-circle mb-2">
+
+                                <h5>John Smith</h5>
+                                <p class="text-muted">Chief Security Officer</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <img src="{% static 'images/images.jfif' %}"
+                                       alt="Team Member"
+                                    class="img-fluid rounded-circle mb-2">
+                                <h5>Sarah Johnson</h5>
+                                <p class="text-muted">Operations Manager</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <img src="{% static 'images/image.jfif' %}"
+                                       alt="Team Member"
+                                    class="img-fluid rounded-circle mb-2">
+                                <h5>Michael Brown</h5>
+                                <p class="text-muted">Head of Personnel</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title">Our Services</h3>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="bi bi-shield-check me-2 text-primary"></i>
+                            <strong>Event Security Planning:</strong> Comprehensive security assessments and customized plans for your event.
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-people me-2 text-primary"></i>
+                            <strong>Crowd Management:</strong> Professional staff to manage crowds and ensure orderly conduct.
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-clipboard-check me-2 text-primary"></i>
+                            <strong>Risk Assessment:</strong> Identification and mitigation of potential security risks.
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-phone me-2 text-primary"></i>
+                            <strong>Emergency Response:</strong> Trained personnel ready to handle any emergency situation.
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-building me-2 text-primary"></i>
+                            <strong>VIP Protection:</strong> Dedicated security for high-profile guests.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Contact Us</h3>
+                    <p class="card-text">
+                        Have questions or ready to secure your next event? Reach out to our team for a consultation.
+                    </p>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'contact' %}" class="btn btn-primary btn-lg">Contact Our Team</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

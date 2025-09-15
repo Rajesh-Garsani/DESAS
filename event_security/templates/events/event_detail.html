@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h2 class="text-center">{{ event.name }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <!-- Event Details -->
+                <div class="col-md-6">
+                    <h4>Event Details</h4>
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>Type:</strong> {{ event.get_event_type_display }}</li>
+                        <li class="list-group-item"><strong>Date & Time:</strong> {{ event.datetime }}</li>
+                        <li class="list-group-item"><strong>Location:</strong> {{ event.location }}</li>
+                        <li class="list-group-item"><strong>Expected Crowd Size:</strong> {{ event.crowd_size }}</li>
+                        <li class="list-group-item">
+                            <strong>Status:</strong>
+                            <span class="badge
+                                {% if event.status == 'pending' %}bg-warning
+                                {% elif event.status == 'approved' %}bg-success
+                                {% elif event.status == 'rejected' %}bg-danger
+                                {% elif event.status == 'assigned' %}bg-info
+                                {% else %}bg-secondary{% endif %}">
+                                {{ event.get_status_display }}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Security Requirements -->
+                <div class="col-md-6">
+                    <h4>Security Requirements</h4>
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>Police Officers:</strong> {{ event.police_count }}</li>
+                        <li class="list-group-item"><strong>Commandos:</strong> {{ event.commando_count }}</li>
+                        <li class="list-group-item"><strong>Security Guards:</strong> {{ event.security_guard_count }}</li>
+                        <li class="list-group-item"><strong>Total Security Personnel:</strong> {{ event.total_guards_requested }}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Assigned Guards -->
+            {% if event.assignments.exists %}
+            <div class="mb-4">
+                <h4>Assigned Security Personnel</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Guard Name</th>
+                                <th>Type</th>
+                                <th>Assignment Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assignment in event.assignments.all %}
+                                {% for guard in assignment.guards.all %}
+                                <tr>
+                                    <td>{{ guard.username }}</td>
+                                    <td>{{ guard.guard_profile.get_guard_type_display }}</td>
+                                    <td>{{ assignment.assigned_at }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Reviews Section -->
+            <div class="mb-4">
+                <h4>Reviews</h4>
+                {% for review in event.reviews.all %}
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <strong>{{ review.registrar.username }}</strong>
+                            <span class="badge bg-warning text-dark">⭐ {{ review.rating }}/5</span>
+                            <p class="mt-2">{{ review.message }}</p>
+                            <small class="text-muted">{{ review.created_at }}</small>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No reviews yet.</p>
+                {% endfor %}
+
+                {% if event.datetime < now %}
+                    <a href="{% url 'add_review' event.id %}" class="btn btn-sm btn-primary mt-3">
+                        Leave a Review
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+                {% if event.status == 'pending' %}
+                    <span class="btn btn-warning disabled">Waiting for Approval</span>
+                {% elif event.status == 'approved' %}
+                    <span class="btn btn-info disabled">Waiting for Assignment</span>
+                {% elif event.status == 'assigned' %}
+                    <span class="btn btn-success disabled">Security Assigned</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

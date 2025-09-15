@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard · DESAS{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-3">
+    <div class="card stat-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <div class="stat-label">Total Events</div>
+            <div class="stat-value">{{ total_events }}</div>
+          </div>
+          <i class="bi bi-calendar3 stat-icon"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <div class="stat-label">Guards</div>
+            <div class="stat-value">{{ total_guards }}</div>
+          </div>
+          <i class="bi bi-person-badge stat-icon"></i>
+        </div>
+        <div class="small text-muted mt-2">Approved: {{ approved_guards }} · Pending: {{ pending_guards }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <div class="stat-label">Pending Events</div>
+            <div class="stat-value">{{ pending_events }}</div>
+          </div>
+          <i class="bi bi-hourglass-split stat-icon"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-4">
+  <div class="card-header bg-surface">
+    <div class="d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Quick Actions</h5>
+      <div class="d-flex gap-2">
+        <a href="{% url 'assign_duty' %}" class="btn btn-primary btn-sm"><i class="bi bi-person-plus me-1"></i>Assign Duty</a>
+        <a href="{% url 'manage_events' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pen me-1"></i>Manage Events</a>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <p class="text-muted small mb-0">Use the navigation to manage guards, review messages, and approve events.</p>
+  </div>
+</div>
+{% endblock %}

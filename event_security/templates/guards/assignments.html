@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Your Assignments</h2>
+
+    {% if assignments %}
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h4>Current Assignments</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Date & Time</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignment in assignments %}
+                        <tr>
+                            <td>{{ assignment.event.name }}</td>
+                            <td>{{ assignment.event.datetime }}</td>
+                            <td>{{ assignment.event.location }}</td>
+                            <td>
+                                <span class="badge
+                                    {% if assignment.event.status == 'assigned' %}bg-success
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ assignment.event.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'assignment_detail' assignment.id %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye"></i> View Details
+                                </a>
+
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        You don't have any assignments yet.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

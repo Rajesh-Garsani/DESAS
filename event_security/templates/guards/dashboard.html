@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Guard Dashboard</h2>
+
+    {% if not is_approved %}
+    <div class="alert alert-warning">
+        <h4><i class="bi bi-exclamation-triangle"></i> Account Pending Approval</h4>
+        <p>Your account is awaiting admin approval. You'll be able to see assignments once approved.</p>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Guard Profile -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4>Your Profile</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ request.user.username }}</p>
+                    <p><strong>Email:</strong> {{ request.user.email }}</p>
+                    <p><strong>Phone:</strong> {{ request.user.phone }}</p>
+                    {% if request.user.guard_profile %}
+                        <p><strong>Guard Type:</strong> {{ request.user.guard_profile.get_guard_type_display }}</p>
+                        <p><strong>Experience:</strong> {{ request.user.guard_profile.experience }} years</p>
+                        <p><strong>Status:</strong>
+                            <span class="badge {% if request.user.guard_profile.is_approved %}bg-success{% else %}bg-warning{% endif %}">
+                                {% if request.user.guard_profile.is_approved %}Approved{% else %}Pending Approval{% endif %}
+                            </span>
+                        </p>
+                    {% endif %}
+                    <div class="d-grid mt-3">
+                        <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-pencil"></i> Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guard Assignments -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4>Your Assignments</h4>
+                </div>
+                <div class="card-body">
+                    {% if assignments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Date & Time</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Assignment Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for assignment in assignments %}
+                                    {% if request.user in assignment.guards.all %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'assignment_detail' assignment.id %}">
+                                                {{ assignment.event.name }}
+                                            </a>
+                                        </td>
+                                        <td>{{ assignment.event.datetime }}</td>
+                                        <td>{{ assignment.event.location }}</td>
+                                        <td>
+                                            <span class="badge
+                                                {% if assignment.event.status == 'assigned' %}bg-success
+                                                {% else %}bg-secondary{% endif %}">
+                                                {{ assignment.event.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>{{ assignment.assigned_at }}</td>
+                                    </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        {% if is_approved %}
+                            You don't have any assignments yet.
+                        {% else %}
+                            Assignments will appear here after admin approval.
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

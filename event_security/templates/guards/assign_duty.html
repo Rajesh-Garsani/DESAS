@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Assign Security Duty</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4>Select Event</h4>
+                    </div>
+                    <div class="card-body">
+                        <select class="form-select form-select-lg" name="event" required>
+                            <option value="" selected disabled>Choose an event...</option>
+                            {% for event in events %}
+                            <option value="{{ event.id }}">
+                                {{ event.name }} - {{ event.datetime|date:"M d, Y" }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h4>Available Security Personnel</h4>
+            </div>
+            <div class="card-body">
+                {% if guards %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Experience</th>
+                                <th>Contact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for guard in guards %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="guards" value="{{ guard.user.id }}">
+                                </td>
+                                <td>{{ guard.user.username }}</td>
+                                <td>{{ guard.profile.get_guard_type_display }}</td>
+                                <td>{{ guard.profile.experience }} years</td>
+                                <td>{{ guard.user.phone }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-warning">
+                    No approved security guards available for assignment.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg" {% if not guards %}disabled{% endif %}>
+                <i class="bi bi-send-check"></i> Assign Selected Personnel
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

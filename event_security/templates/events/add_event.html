@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="text-center">Add New Event</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary">Submit Event</button>
+                            <script src="{% static 'js/datepicker.js' %}"></script>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const crowdField = document.getElementById("id_crowd_size");
+    const policeField = document.getElementById("id_police_count");
+    const commandoField = document.getElementById("id_commando_count");
+    const guardsField = document.getElementById("id_security_guard_count");
+
+    if (!crowdField) {
+        console.error("crowd_size field not found!");
+        return;
+    }
+
+    crowdField.addEventListener("input", function() {
+        const crowd = parseInt(crowdField.value) || 0;
+
+        let police = 0, commandos = 0, guards = 0;
+
+        if (crowd > 0 && crowd <= 100) {
+            police = 2; commandos = 0; guards = 3;
+        } else if (crowd <= 500) {
+            police = 5; commandos = 2; guards = 10;
+        } else if (crowd <= 2000) {
+            police = 10; commandos = 5; guards = 20;
+        } else if (crowd > 2000) {
+            police = 20; commandos = 10; guards = 40;
+        }
+
+        if (policeField) policeField.value = police;
+        if (commandoField) commandoField.value = commandos;
+        if (guardsField) guardsField.value = guards;
+    });
+});
+</script>
+
+{% endblock %}
