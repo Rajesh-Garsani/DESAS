@@ -110,4 +110,10 @@
         </div>
     </div>
 </div>
+
+<!-- inside event_detail template, e.g. in Actions area -->
+<a href="{% url 'export_event_pdf' event.id %}" class="btn btn-outline-secondary" target="_blank">
+  <i class="bi bi-file-earmark-pdf"></i> Download PDF
+</a>
+
 {% endblock %}

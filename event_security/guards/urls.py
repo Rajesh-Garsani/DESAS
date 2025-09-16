@@ -12,4 +12,7 @@ urlpatterns = [
     path('assign-duty/', views.assign_duty, name='assign_duty'),
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('messages-log/', views.messages_log, name='messages_log'),
+    path("history/", views.guard_history, name="guard_history"),
+    path("history/pdf/", views.export_guard_history_pdf, name="export_guard_history_pdf"),
+
 ]

@@ -72,12 +72,16 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="{% url 'reject_assignment' assignment.id %}" class="btn btn-sm btn-outline-danger">
-                                            <i class="bi bi-x-circle"></i> Reject
+                                        <div class="btn-group" role="group" aria-label="Assignment Actions">
+                                            <a href="{% url 'reject_assignment' assignment.id %}"
+                                                class="btn btn-sm btn-outline-danger d-flex align-items-center">
+                                             <i class="bi bi-x-circle me-1"></i> Reject
+                                             </a>
+                                            <a href="{% url 'complete_assignment' assignment.id %}"
+                                               class="btn btn-sm btn-outline-success d-flex align-items-center ms-2">
+                                             <i class="bi bi-check-circle me-1"></i> Complete
                                         </a>
-                                        <a href="{% url 'complete_assignment' assignment.id %}" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-check-circle"></i> Complete
-                                        </a>
+                                       </div>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -98,4 +102,12 @@
         </div>
     </div>
 </div>
+
+<div class="d-grid mt-3">
+
+    <a href="{% url 'guard_history' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-clock-history"></i> View History
+    </a>
+</div>
+
 {% endblock %}

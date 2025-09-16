@@ -6,9 +6,16 @@ from django.conf import settings
 from django.utils import timezone
 from django.apps import apps
 from django.contrib.auth.decorators import login_required
-
 from .models import Event, EventReview
 from .forms import EventForm, EventReviewForm
+import io
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
+from django.shortcuts import get_object_or_404, redirect
+
+
+
 
 # ✅ Lazy imports for decorators
 try:
@@ -218,3 +225,64 @@ def add_review(request, event_id):
 def review_list(request):
     reviews = EventReview.objects.select_related("event", "registrar").order_by("-created_at")
     return render(request, "events/review_list.html", {"reviews": reviews})
+
+
+
+
+def export_event_pdf(request, event_id):
+    """
+    Export a PDF with event details and assigned guards.
+    Only allowed for the event registrar or admin users.
+    """
+    # load Event model (already imported at top of file in many versions)
+    try:
+        Event = apps.get_model('events', 'Event')
+    except Exception:
+        # fallback if Event is already imported at file top
+        from .models import Event
+
+    event = get_object_or_404(Event, id=event_id)
+
+    # Permission: only event.registrar or admin allowed
+    user = request.user
+    is_admin = hasattr(user, 'is_admin') and user.is_admin() if user.is_authenticated else False
+    if not user.is_authenticated:
+        messages.error(request, "Please login to download event PDF.")
+        return redirect('login')
+
+    if not (user == event.registrar or is_admin):
+        messages.error(request, "You do not have permission to download this event PDF.")
+        return redirect('unauthorized')
+
+    # Get assigned guards (DutyAssignment -> guards)
+    DutyAssignment = apps.get_model('guards', 'DutyAssignment')
+    assignments = DutyAssignment.objects.filter(event=event).prefetch_related('guards')
+    guards = []
+    seen = set()
+    for a in assignments:
+        for g in a.guards.all():
+            if g.pk not in seen:
+                guards.append(g)
+                seen.add(g.pk)
+
+    # Render HTML from template
+    context = {
+        'event': event,
+        'guards': guards,
+        'now': timezone.now(),
+    }
+    html = render_to_string('events/event_pdf.html', context)
+
+    # Convert HTML to PDF
+    result = io.BytesIO()
+    pisa_status = pisa.CreatePDF(src=html, dest=result)
+
+    if pisa_status.err:
+        # Return plain html on error so you can debug
+        return HttpResponse('We had some errors generating the PDF. <pre>{}</pre>'.format(pisa_status.err), content_type='text/html')
+
+    # Build response
+    filename = f"{event.name}_details.pdf".replace(' ', '_')
+    response = HttpResponse(result.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
