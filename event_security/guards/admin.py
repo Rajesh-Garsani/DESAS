@@ -2,6 +2,7 @@ from django.contrib import admin, messages
 from django.core.mail import send_mail
 from django.conf import settings
 from django.apps import apps
+from django.utils.html import format_html
 
 # Twilio optional
 try:
@@ -16,11 +17,24 @@ from .models import SecurityGuardProfile, DutyAssignment
 User = get_user_model()
 
 
+
+
 @admin.register(SecurityGuardProfile)
 class SecurityGuardProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'guard_type', 'cnic', 'age', 'experience', 'is_approved')
+    list_display = ('user', 'get_guard_type_display_short', 'cnic', 'age', 'experience', 'is_approved', 'photo_thumbnail')
     list_filter = ('guard_type', 'is_approved')
     search_fields = ('user__username', 'cnic')
+
+    def get_guard_type_display_short(self, obj):
+        return obj.get_guard_type_display()
+    get_guard_type_display_short.short_description = 'Guard Type'
+
+    def photo_thumbnail(self, obj):
+        if obj.photo:
+            return format_html('<img src="{}" style="height:50px;border-radius:4px;" />', obj.photo.url)
+        return "-"
+    photo_thumbnail.short_description = 'Photo'
+
 
 
 @admin.register(DutyAssignment)

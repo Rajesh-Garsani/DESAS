@@ -4,8 +4,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.apps import apps
-from django.shortcuts import redirect
+
 from .forms import EventRegistrarRegistrationForm, SecurityGuardRegistrationForm, LoginForm
+
+
+
+
+
 CustomUser = get_user_model()
 
 
@@ -21,23 +26,29 @@ def register_event_registrar(request):
     return render(request, "accounts/register_event_registrar.html", {"form": form})
 
 
+
+
 def register_security_guard(request):
     # Import the SecurityGuardProfile model inside the function to avoid circular imports
     SecurityGuardProfile = apps.get_model('guards', 'SecurityGuardProfile')
 
     if request.method == 'POST':
-        form = SecurityGuardRegistrationForm(request.POST)
+        # ✅ include request.FILES to handle photo upload
+        form = SecurityGuardRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
             try:
                 user = form.save()
 
-                # Create guard profile
-                SecurityGuardProfile.objects.create(
+                # Create guard profile explicitly (form.save() already does this, but safe to keep here if needed)
+                SecurityGuardProfile.objects.update_or_create(
                     user=user,
-                    cnic=form.cleaned_data['cnic'],
-                    age=form.cleaned_data['age'],
-                    experience=form.cleaned_data['experience'],
-                    guard_type=form.cleaned_data['guard_type']
+                    defaults={
+                        'cnic': form.cleaned_data['cnic'],
+                        'age': form.cleaned_data['age'],
+                        'experience': form.cleaned_data['experience'],
+                        'guard_type': form.cleaned_data['guard_type'],
+                        'photo': form.cleaned_data['photo'],  # ✅ Save photo
+                    }
                 )
 
                 login(request, user)
@@ -47,6 +58,7 @@ def register_security_guard(request):
                 messages.error(request, f'Error during registration: {str(e)}')
     else:
         form = SecurityGuardRegistrationForm()
+
     return render(request, 'accounts/register_security_guard.html', {'form': form})
 
 

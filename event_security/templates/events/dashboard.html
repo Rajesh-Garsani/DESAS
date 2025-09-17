@@ -20,7 +20,7 @@
                     <th>Date & Time</th>
                     <th>Location</th>
                     <th>Status</th>
-                    <th>Assigned Guards</th>
+                    <th>            </th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -45,9 +45,7 @@
                         {% with event_assignments|get_item:event.id as guards %}
                             {% if guards %}
                                 {% for guard in guards %}
-                                    <span class="badge bg-secondary">
-                                        {{ guard.username }} ({{ guard.guard_profile.guard_type }})
-                                    </span><br>
+
                                 {% endfor %}
                             {% else %}
                                 <em>No guards assigned yet</em>

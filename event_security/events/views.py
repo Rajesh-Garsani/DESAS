@@ -285,4 +285,5 @@ def export_event_pdf(request, event_id):
     filename = f"{event.name}_details.pdf".replace(' ', '_')
     response = HttpResponse(result.getvalue(), content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
     return response

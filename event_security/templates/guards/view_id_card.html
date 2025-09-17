@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow" style="max-width: 600px; margin:auto; border: 2px solid #333;">
+        <div class="card-header bg-dark text-white text-center">
+            <h4>DESAS - Security Guard ID Card</h4>
+        </div>
+        <div class="card-body text-center">
+            {% if guard_profile.photo %}
+                <img src="{{ guard_profile.photo.url }}" class="img-thumbnail mb-3" style="width:120px; height:120px; object-fit:cover;">
+            {% else %}
+                <div class="alert alert-info">No photo uploaded</div>
+            {% endif %}
+            <p><strong>Name:</strong> {{ guard_profile.user.username }}</p>
+            <p><strong>Email:</strong> {{ guard_profile.user.email }}</p>
+            <p><strong>Phone:</strong> {{ guard_profile.user.phone }}</p>
+            <p><strong>CNIC:</strong> {{ guard_profile.cnic }}</p>
+            <p><strong>Guard Type:</strong> {{ guard_profile.get_guard_type_display }}</p>
+            <p><strong>Experience:</strong> {{ guard_profile.experience }} years</p>
+        </div>
+        <div class="card-footer text-center">
+            <a href="{% url 'download_id_card' %}" class="btn btn-success">
+                <i class="bi bi-download"></i> Download as PDF
+            </a>
+            <a href="{% url 'guard_dashboard' %}" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

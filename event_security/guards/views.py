@@ -8,12 +8,11 @@ from .models import SecurityGuardProfile, DutyAssignment
 from .forms import GuardProfileForm
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-
-
+from django.http import FileResponse
+from .utils import generate_guard_id_card
 
 
 
@@ -76,8 +75,10 @@ def guard_dashboard(request):
     return render(request, 'guards/dashboard.html', context)
 
 
+
 @security_guard_required
 def edit_profile(request):
+    # get or create profile
     try:
         guard_profile = SecurityGuardProfile.objects.get(user=request.user)
     except SecurityGuardProfile.DoesNotExist:
@@ -85,7 +86,7 @@ def edit_profile(request):
         guard_profile.save()
 
     if request.method == 'POST':
-        form = GuardProfileForm(request.POST, instance=guard_profile)
+        form = GuardProfileForm(request.POST, request.FILES, instance=guard_profile)
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile updated successfully!')
@@ -95,8 +96,10 @@ def edit_profile(request):
 
     context = {
         'form': form,
+        'guard_profile': guard_profile,  # include to display existing photo
     }
     return render(request, 'guards/edit_profile.html', context)
+
 
 
 @security_guard_required
@@ -440,3 +443,15 @@ def export_guard_history_pdf(request):
 
     p.save()
     return response
+
+
+@login_required
+def view_id_card(request):
+    guard_profile = get_object_or_404(SecurityGuardProfile, user=request.user)
+    return render(request, 'guards/view_id_card.html', {'guard_profile': guard_profile})
+
+@login_required
+def download_id_card(request):
+    guard_profile = get_object_or_404(SecurityGuardProfile, user=request.user)
+    pdf_buffer = generate_guard_id_card(guard_profile)
+    return FileResponse(pdf_buffer, as_attachment=True, filename=f"ID_Card_{request.user.username}.pdf")

@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
+
+
+from django.core.validators import FileExtensionValidator
+
 User = get_user_model()
 
 
@@ -17,6 +21,12 @@ class SecurityGuardProfile(models.Model):
     experience = models.IntegerField()
     guard_type = models.CharField(max_length=20, choices=GUARD_TYPE_CHOICES)
     is_approved = models.BooleanField(default=False)
+    photo = models.ImageField(
+        upload_to='guard_photos/',
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(['jpg', 'jpeg', 'png'])]
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
