@@ -9,6 +9,8 @@ urlpatterns = [
     path('', include('core.urls')),
     path('events/', include('events.urls')),
     path('guards/', include('guards.urls')),
+    path("footer/", include("footer.urls")),
+
 ]
 
 if settings.DEBUG:

@@ -116,33 +116,11 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-dark text-white py-4 mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <h5>EventSecure</h5>
-                    <p>Professional security solutions for all your event needs.</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{% url 'home' %}" class="text-white">Home</a></li>
-                        <li><a href="{% url 'about' %}" class="text-white">About Us</a></li>
-                        <li><a href="{% url 'contact' %}" class="text-white">Contact</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Contact Us</h5>
-                    <address>
-                        <p>123 Security Plaza<br>Karachi, Pakistan<br>Phone: (123) 456-7890<br>Email: info@eventsecure.com</p>
-                    </address>
-                </div>
-            </div>
-            <div class="text-center mt-3">
-                <p>&copy; 2025 EventSecure. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+
+    {% include 'partials/_footer.html' %}
+
+
+
 
 
 
