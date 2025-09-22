@@ -3,6 +3,10 @@ from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
 from django.apps import apps
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
 
 # Home page with latest event reviews
 def home(request):
@@ -50,6 +54,26 @@ def about(request):
 
 def unauthorized(request):
     return render(request, 'core/unauthorized.html')
+
+
+
+
+def home(request):
+    # ✅ Get models dynamically (no circular import errors)
+    Event = apps.get_model('events', 'Event')
+    SecurityGuardProfile = apps.get_model('guards', 'SecurityGuardProfile')
+
+    total_guards = SecurityGuardProfile.objects.count()
+    total_events = Event.objects.count()
+    total_registrars = User.objects.filter(role="event_registrar").count()
+
+    return render(request, "core/home.html", {
+        "total_guards": total_guards,
+        "total_events": total_events,
+        "total_registrars": total_registrars,
+    })
+
+
 
 # Contact form with email + lazy-loaded MessageLog
 def contact(request):

@@ -76,57 +76,44 @@
     </div>
 </div>
 
-<div class="testimonials-section bg-light py-5">
+<div class="stats-section bg-light py-5">
     <div class="container">
         <div class="row text-center mb-4">
-            <h2>What Our Clients Say</h2>
+            <h2>System Statistics</h2>
+            <p class="lead">Real-time overview of our platform activity</p>
         </div>
         <div class="row">
             <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <p class="card-text">"EventSecure provided exceptional security for our corporate conference. Their team was professional and efficient."</p>
-                        <div class="d-flex align-items-center mt-3">
-                            <img src="static\images\Sarah.jfif" alt="Client" class="rounded-circle me-3" width="50">
-                            <div>
-                                <h6 class="mb-0">Sarah Johnson</h6>
-                                <small class="text-muted">Event Manager, TechCorp</small>
-                            </div>
-                        </div>
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-shield-lock display-4 text-primary mb-3"></i>
+                        <h3>{{ total_guards }}</h3>
+                        <p class="card-text">Security Personnel</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <p class="card-text">"We hired EventSecure for our wedding and were impressed by their discreet yet effective security presence."</p>
-                        <div class="d-flex align-items-center mt-3">
-                            <img src="static\images\Emily.jfif" alt="Client" class="rounded-circle me-3" width="50">
-                            <div>
-                                <h6 class="mb-0">Michael & Emily Chen</h6>
-                                <small class="text-muted">Wedding Clients</small>
-                            </div>
-                        </div>
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-calendar-event display-4 text-success mb-3"></i>
+                        <h3>{{ total_events }}</h3>
+                        <p class="card-text">Events</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <p class="card-text">"The security team handled crowd control perfectly at our music festival. Will definitely use them again!"</p>
-                        <div class="d-flex align-items-center mt-3">
-                            <img src="static\images\David.jfif" alt="Client" class="rounded-circle me-3" width="50">
-                            <div>
-                                <h6 class="mb-0">David Rodriguez</h6>
-                                <small class="text-muted">Festival Organizer</small>
-                            </div>
-                        </div>
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-person-badge display-4 text-warning mb-3"></i>
+                        <h3>{{ total_registrars }}</h3>
+                        <p class="card-text">Users</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 
 <section class="py-5 bg-light">
   <div class="container">
